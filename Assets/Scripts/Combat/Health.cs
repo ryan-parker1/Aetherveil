@@ -2,19 +2,19 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    [Header("Health Settings")]
-    [SerializeField] private int maxHealth = 100;
+    private CombatStats stats;
 
     private int currentHealth;
 
     public int CurrentHealth => currentHealth;
-    public int MaxHealth => maxHealth;
 
     public bool IsDead => currentHealth <= 0;
 
     private void Awake()
     {
-        currentHealth = maxHealth;
+        stats = GetComponent<CombatStats>();
+
+        currentHealth = stats.MaxHealth;
     }
 
     public void TakeDamage(int amount)
@@ -24,9 +24,14 @@ public class Health : MonoBehaviour
 
         currentHealth -= amount;
 
-        Debug.Log(gameObject.name + " took " + amount + " damage.");
-        Debug.Log(currentHealth + " HP remaining.");
-        
+        Debug.Log(
+            gameObject.name +
+            " took " +
+            amount +
+            " damage. Remaining HP: " +
+            currentHealth
+        );
+
         if (currentHealth <= 0)
         {
             Die();

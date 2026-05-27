@@ -2,14 +2,19 @@ using UnityEngine;
 
 public class CombatController : MonoBehaviour
 {
-    [Header("Combat Settings")]
-    [SerializeField] private int damageAmount = 10;
-
     private TargetingController targetingController;
+
+    private CombatStats stats;
+
+    private float lastAttackTime;
 
     private void Awake()
     {
-        targetingController = GetComponent<TargetingController>();
+        targetingController =
+            GetComponent<TargetingController>();
+
+        stats =
+            GetComponent<CombatStats>();
     }
 
     private void Update()
@@ -27,21 +32,41 @@ public class CombatController : MonoBehaviour
 
     private void TryAttackTarget()
     {
+        if (Time.time < lastAttackTime + stats.AttackCooldown)
+        {
+            Debug.Log("Attack on cooldown.");
+            return;
+        }
+
         if (targetingController.CurrentTarget == null)
         {
             Debug.Log("No target selected.");
             return;
         }
 
-        Damageable damageable =
-            targetingController.CurrentTarget.GetComponent<Damageable>();
+        float distance =
+            Vector3.Distance(
+                transform.position,
+                targetingController.CurrentTarget.transform.position
+            );
 
-        if (damageable == null)
+        if (distance > stats.AttackRange)
         {
-            Debug.Log("Target is not damageable.");
+            Debug.Log("Target out of range.");
             return;
         }
 
-        damageable.ReceiveDamage(damageAmount);
+        Damageable damageable =
+            targetingController.CurrentTarget
+                .GetComponent<Damageable>();
+
+        if (damageable == null)
+        {
+            return;
+        }
+
+        damageable.ReceiveDamage(stats.Damage);
+
+        lastAttackTime = Time.time;
     }
 }
