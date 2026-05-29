@@ -1719,6 +1719,7 @@ GameObject:
   - component: {fileID: 1350722394}
   - component: {fileID: 1350722397}
   - component: {fileID: 1350722398}
+  - component: {fileID: 1350722399}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1879,6 +1880,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AbilityController
   abilities:
   - {fileID: 11400000, guid: 69c13d5889158c54a8aaf7fb38af881a, type: 2}
+--- !u!114 &1350722399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350722388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb9dbd9bd613f714697ce5b5a01260a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Experience
+  currentLevel: 1
+  currentXP: 0
+  requiredXP: 100
+  xpMultiplier: 1.5
 --- !u!1 &1364903970
 GameObject:
   m_ObjectHideFlags: 0

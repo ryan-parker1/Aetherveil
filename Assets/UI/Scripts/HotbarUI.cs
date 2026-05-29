@@ -27,7 +27,10 @@ public class HotbarUI : MonoBehaviour
             AbilitySlotUI slotUI =
                 slot.GetComponent<AbilitySlotUI>();
 
-            slotUI.Setup(ability);
+            slotUI.Setup(
+                ability,
+                abilityController
+            );
         }
     }
 }

@@ -46,6 +46,13 @@ public class Health : MonoBehaviour
         currentHealth = stats.MaxHealth;
     }
 
+    public void IncreaseMaxHealth(int amount)
+    {
+        stats.MaxHealth += amount;
+
+        currentHealth = stats.MaxHealth;
+    }
+
     private void Die()
     {
         currentHealth = 0;

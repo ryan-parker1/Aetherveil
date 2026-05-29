@@ -12,9 +12,16 @@ public class AbilitySlotUI : MonoBehaviour
 
     private AbilityData ability;
 
-    public void Setup(AbilityData newAbility)
+    private AbilityController abilityController;
+
+    public void Setup(
+        AbilityData newAbility,
+        AbilityController controller
+    )
     {
         ability = newAbility;
+
+        abilityController = controller;
 
         icon.sprite = ability.icon;
 
@@ -22,9 +29,41 @@ public class AbilitySlotUI : MonoBehaviour
             ability.keybind.ToString().Replace("Alpha", "");
     }
 
-    public void SetCooldownVisible(bool visible)
+    private void Update()
     {
-        cooldownOverlay.gameObject.SetActive(visible);
+        UpdateCooldownVisual();
+    }
+
+    private void UpdateCooldownVisual()
+    {
+        if (ability == null || abilityController == null)
+            return;
+
+        if (!abilityController.CooldownTimers
+            .ContainsKey(ability))
+        {
+            cooldownOverlay.gameObject.SetActive(false);
+
+            return;
+        }
+
+        float cooldownEndTime =
+            abilityController.CooldownTimers[ability];
+
+        float remainingTime =
+            cooldownEndTime - Time.time;
+
+        if (remainingTime <= 0)
+        {
+            cooldownOverlay.gameObject.SetActive(false);
+
+            return;
+        }
+
+        cooldownOverlay.gameObject.SetActive(true);
+
+        cooldownOverlay.fillAmount =
+            remainingTime / ability.cooldown;
     }
 
     public AbilityData GetAbility()

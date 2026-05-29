@@ -69,7 +69,7 @@ public class EnemyAI : MonoBehaviour
                 spawnPoint.position
             );
 
-        Debug.Log("Distance From Spawn: " + distanceFromSpawn);
+        // Debug.Log("Distance From Spawn: " + distanceFromSpawn);
 
         if (distanceFromSpawn > leashDistance)
         {

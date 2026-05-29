@@ -221,6 +221,8 @@ GameObject:
   - component: {fileID: 618098596342603596}
   - component: {fileID: 684656694268799297}
   - component: {fileID: 6454525939712634916}
+  - component: {fileID: 941019822085535375}
+  - component: {fileID: -4629380067503865293}
   m_Layer: 3
   m_Name: Enemy_01
   m_TagString: Untagged
@@ -364,3 +366,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
   gravity: -9.81
   leashDistance: 5
+--- !u!114 &941019822085535375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5379174394182644937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39342b55c7610874aae6390a4d871990, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExperienceReward
+  xpReward: 25
+--- !u!114 &-4629380067503865293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5379174394182644937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdd7318bdd0279479dd41d9ea648925, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDeathReward

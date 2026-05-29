@@ -15,10 +15,23 @@ public class CombatStats : MonoBehaviour
 
     [SerializeField] private float attackCooldown = 1.5f;
 
-    public int MaxHealth => maxHealth;
-    public int Damage => damage;
+    public int MaxHealth
+    {
+        get => maxHealth;
+        set => maxHealth = value;
+    }
+
+    public int Damage
+    {
+        get => damage;
+        set => damage = value;
+    }
     public float AttackRange => attackRange;
     public float DetectionRange => detectionRange;
     public float MoveSpeed => moveSpeed;
     public float AttackCooldown => attackCooldown;
+    public void IncreaseDamage(int amount)
+    {
+        damage += amount;
+    }
 }
