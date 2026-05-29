@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Health : MonoBehaviour
@@ -9,6 +10,8 @@ public class Health : MonoBehaviour
     public int CurrentHealth => currentHealth;
 
     public bool IsDead => currentHealth <= 0;
+
+    public event Action OnDeath;
 
     private void Awake()
     {
@@ -38,12 +41,17 @@ public class Health : MonoBehaviour
         }
     }
 
+    public void RestoreFullHealth()
+    {
+        currentHealth = stats.MaxHealth;
+    }
+
     private void Die()
     {
         currentHealth = 0;
 
         Debug.Log(gameObject.name + " died.");
 
-        Destroy(gameObject);
+        OnDeath?.Invoke();
     }
 }

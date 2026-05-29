@@ -4,6 +4,10 @@ using UnityEngine;
 [RequireComponent(typeof(CombatStats))]
 public class EnemyAI : MonoBehaviour
 {
+    private Transform spawnPoint;
+    
+    private bool returningToSpawn;
+
     private CharacterController controller;
 
     private CombatStats stats;
@@ -15,6 +19,8 @@ public class EnemyAI : MonoBehaviour
     private Vector3 velocity;
 
     [SerializeField] private float gravity = -9.81f;
+
+    [SerializeField] private float leashDistance = 12f;
 
     private float lastAttackTime;
 
@@ -51,18 +57,65 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleCombat()
     {
-        float distance =
+        if (spawnPoint == null)
+        {
+            Debug.LogError("Spawn point is NULL.");
+            return;
+        }
+
+        float distanceFromSpawn =
+            Vector3.Distance(
+                transform.position,
+                spawnPoint.position
+            );
+
+        Debug.Log("Distance From Spawn: " + distanceFromSpawn);
+
+        if (distanceFromSpawn > leashDistance)
+        {
+            Debug.Log("Enemy exceeded leash distance.");
+
+            returningToSpawn = true;
+        }
+
+        if (returningToSpawn)
+        {
+            ReturnToSpawn();
+
+            float distanceToSpawn =
+                Vector3.Distance(
+                    transform.position,
+                    spawnPoint.position
+                );
+
+            if (distanceToSpawn < 0.5f)
+            {
+                returningToSpawn = false;
+
+                Health health =
+                    GetComponent<Health>();
+
+                if (health != null)
+                {
+                    health.RestoreFullHealth();
+                }
+            }
+
+            return;
+        }
+
+        float distanceToPlayer =
             Vector3.Distance(
                 transform.position,
                 player.position
             );
 
-        if (distance > stats.DetectionRange)
+        if (distanceToPlayer > stats.DetectionRange)
         {
             return;
         }
 
-        if (distance > stats.AttackRange)
+        if (distanceToPlayer > stats.AttackRange)
         {
             MoveTowardPlayer();
         }
@@ -76,6 +129,31 @@ public class EnemyAI : MonoBehaviour
     {
         Vector3 direction =
             (player.position - transform.position).normalized;
+
+        direction.y = 0f;
+
+        controller.Move(
+            direction *
+            stats.MoveSpeed *
+            Time.deltaTime
+        );
+
+        Quaternion targetRotation =
+            Quaternion.LookRotation(direction);
+
+        transform.rotation = Quaternion.Lerp(
+            transform.rotation,
+            targetRotation,
+            10f * Time.deltaTime
+        );
+    }
+
+    private void ReturnToSpawn()
+    {
+        Debug.Log("Returning to spawn...");
+
+        Vector3 direction =
+            (spawnPoint.position - transform.position).normalized;
 
         direction.y = 0f;
 
@@ -122,5 +200,11 @@ public class EnemyAI : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
 
         controller.Move(velocity * Time.deltaTime);
+    }
+    public void SetSpawnPoint(Transform point)
+    {
+        spawnPoint = point;
+
+        Debug.Log(gameObject.name + " spawn point assigned.");
     }
 }
