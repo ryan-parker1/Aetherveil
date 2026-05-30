@@ -6,6 +6,8 @@ public class CombatStats : MonoBehaviour
     [SerializeField] private int maxHealth = 100;
 
     [SerializeField] private int damage = 10;
+    private int bonusHealth;
+    private int bonusDamage;
 
     [SerializeField] private float attackRange = 2f;
 
@@ -14,6 +16,10 @@ public class CombatStats : MonoBehaviour
     [SerializeField] private float moveSpeed = 3.5f;
 
     [SerializeField] private float attackCooldown = 1.5f;
+
+    public int TotalHealth => maxHealth + bonusHealth;
+
+    public int TotalDamage => damage + bonusDamage;
 
     public int MaxHealth
     {
@@ -33,5 +39,23 @@ public class CombatStats : MonoBehaviour
     public void IncreaseDamage(int amount)
     {
         damage += amount;
+    }
+    public void AddHealthBonus(int amount)
+    {
+        bonusHealth += amount;
+    }
+
+    public void AddDamageBonus(int amount)
+    {
+        bonusDamage += amount;
+    }
+    public void RemoveHealthBonus(int amount)
+    {
+        bonusHealth -= amount;
+    }
+
+    public void RemoveDamageBonus(int amount)
+    {
+        bonusDamage -= amount;
     }
 }

@@ -17,7 +17,7 @@ public class Health : MonoBehaviour
     {
         stats = GetComponent<CombatStats>();
 
-        currentHealth = stats.MaxHealth;
+        currentHealth = stats.TotalHealth;
     }
 
     public void TakeDamage(int amount)
@@ -43,14 +43,14 @@ public class Health : MonoBehaviour
 
     public void RestoreFullHealth()
     {
-        currentHealth = stats.MaxHealth;
+        currentHealth = stats.TotalHealth;
     }
 
     public void IncreaseMaxHealth(int amount)
     {
         stats.MaxHealth += amount;
 
-        currentHealth = stats.MaxHealth;
+        currentHealth = stats.TotalHealth;
     }
 
     private void Die()

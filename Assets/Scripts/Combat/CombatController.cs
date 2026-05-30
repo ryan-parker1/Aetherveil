@@ -65,7 +65,9 @@ public class CombatController : MonoBehaviour
             return;
         }
 
-        damageable.ReceiveDamage(stats.Damage);
+        Debug.Log("Attacking for " + stats.TotalDamage + " damage.");
+        
+        damageable.ReceiveDamage(stats.TotalDamage);
 
         lastAttackTime = Time.time;
     }

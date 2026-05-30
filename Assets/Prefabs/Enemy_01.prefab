@@ -223,6 +223,8 @@ GameObject:
   - component: {fileID: 6454525939712634916}
   - component: {fileID: 941019822085535375}
   - component: {fileID: -4629380067503865293}
+  - component: {fileID: 5339873892975042078}
+  - component: {fileID: 9106105316007340649}
   m_Layer: 3
   m_Name: Enemy_01
   m_TagString: Untagged
@@ -391,3 +393,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfdd7318bdd0279479dd41d9ea648925, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDeathReward
+--- !u!114 &5339873892975042078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5379174394182644937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f9f99a44ed8dc646970ecd3064ab59e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LootTable
+  lootEntries:
+  - item: {fileID: 11400000, guid: 5243f86309146da4da3e8b045511d566, type: 2}
+    dropChance: 100
+    minQuantity: 1
+    maxQuantity: 3
+--- !u!114 &9106105316007340649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5379174394182644937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e6c64a03d919a54da41b18875c9edd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyLootDropper
