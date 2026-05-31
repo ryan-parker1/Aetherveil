@@ -59,6 +59,24 @@ public class Health : MonoBehaviour
 
         Debug.Log(gameObject.name + " died.");
 
+        Debug.Log("Die() reached for: " + gameObject.name);
+
+        if (CompareTag("Enemy"))
+        {
+            QuestLog questLog =
+                FindFirstObjectByType<QuestLog>();
+
+            if (questLog != null)
+            {
+                questLog.RegisterKill(
+                    gameObject.name.Replace(
+                        "(Clone)",
+                        ""
+                    )
+                );
+            }
+        }
+        
         OnDeath?.Invoke();
     }
 }

@@ -27,7 +27,7 @@ public class InventorySlotUI : MonoBehaviour
             return;
 
         EquipmentManager equipmentManager =
-            FindFirstObjectByType<EquipmentManager>();
+            FindAnyObjectByType<EquipmentManager>();
 
         if (equipmentManager == null)
             return;
