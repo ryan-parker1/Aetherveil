@@ -28,6 +28,14 @@ public class NPCInteractor : MonoBehaviour
 
             if (questGiver != null)
             {
+                NPCDialogue dialogue =
+                    hit.GetComponent<NPCDialogue>();
+
+                if (dialogue != null)
+                {
+                    dialogue.OpenDialogue();
+                }
+
                 questGiver.Interact();
 
                 return;
