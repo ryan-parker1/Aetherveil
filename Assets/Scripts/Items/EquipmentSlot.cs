@@ -4,5 +4,6 @@ public enum EquipmentSlot
     Head,
     Chest,
     Legs,
-    Feet
+    Feet,
+    Glove
 }

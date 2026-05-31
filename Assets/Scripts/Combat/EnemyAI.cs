@@ -150,7 +150,6 @@ public class EnemyAI : MonoBehaviour
 
     private void ReturnToSpawn()
     {
-        Debug.Log("Returning to spawn...");
 
         Vector3 direction =
             (spawnPoint.position - transform.position).normalized;

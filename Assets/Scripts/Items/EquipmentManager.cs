@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class EquipmentManager : MonoBehaviour
 {
+    public event Action OnEquipmentChanged;
     private CombatStats stats;
 
     private Dictionary<EquipmentSlot, ItemData>
@@ -28,6 +30,8 @@ public class EquipmentManager : MonoBehaviour
         }
 
         equippedItems[item.equipmentSlot] = item;
+
+        OnEquipmentChanged?.Invoke();
 
         stats.AddHealthBonus(item.bonusHealth);
 

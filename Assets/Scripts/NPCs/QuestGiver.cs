@@ -10,7 +10,7 @@ public class QuestGiver : MonoBehaviour
     public void Interact()
     {
         QuestLog questLog =
-            FindFirstObjectByType<QuestLog>();
+            FindAnyObjectByType<QuestLog>();
 
         if (questLog == null)
             return;
@@ -52,23 +52,41 @@ public class QuestGiver : MonoBehaviour
             "Quest Turned In!"
         );
 
-        LevelSystem levelSystem =
-            FindFirstObjectByType<LevelSystem>();
+        Experience experience =
+            FindAnyObjectByType<Experience>();
 
-        if (levelSystem != null)
+        if (experience != null)
         {
-            levelSystem.AddExperience(
+            experience.GainExperience(
                 quest.rewardXP
             );
         }
 
         PlayerGold gold =
-            FindFirstObjectByType<PlayerGold>();
+            FindAnyObjectByType<PlayerGold>();
 
         if (gold != null)
         {
             gold.AddGold(
                 quest.rewardGold
+            );
+        }
+
+        Inventory inventory =
+            FindAnyObjectByType<Inventory>();
+
+        if (
+            inventory != null &&
+            quest.rewardItem != null
+        )
+        {
+            inventory.AddItem(
+                quest.rewardItem
+            );
+
+            Debug.Log(
+                "Received: " +
+                quest.rewardItem.itemName
             );
         }
 

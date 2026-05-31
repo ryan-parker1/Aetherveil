@@ -64,7 +64,7 @@ public class Health : MonoBehaviour
         if (CompareTag("Enemy"))
         {
             QuestLog questLog =
-                FindFirstObjectByType<QuestLog>();
+                FindAnyObjectByType<QuestLog>();
 
             if (questLog != null)
             {
