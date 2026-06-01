@@ -7,6 +7,9 @@ using System.Collections.Generic;
 [Serializable]
 public class SaveData
 {
+    // Scene
+    public string sceneName;
+
     // Player transform
     public float posX;
     public float posY;

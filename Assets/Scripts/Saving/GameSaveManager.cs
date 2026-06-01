@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // Attach to a persistent GameObject in the scene.
 // F5 = manual save. Auto-saves on quit. Auto-loads on start if a save exists.
@@ -60,6 +61,9 @@ public class GameSaveManager : MonoBehaviour
     public void SaveGame()
     {
         SaveData data = new SaveData();
+
+        // Scene
+        data.sceneName = SceneManager.GetActiveScene().name;
 
         // Position
         data.posX = player.transform.position.x;
