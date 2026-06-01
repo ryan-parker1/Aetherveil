@@ -6,32 +6,59 @@ using UnityEngine;
 // per-ownership setup: camera assignment and component gating.
 public class NetworkPlayerSetup : NetworkBehaviour
 {
-    [Header("Owner-Only Components")]
-    [Tooltip("These components are disabled for all non-owner clients.")]
-    [SerializeField] private MonoBehaviour[] ownerOnlyComponents;
-
     public override void OnStartClient()
     {
         base.OnStartClient();
+
+        PlayerController playerController =
+            GetComponent<PlayerController>();
+
+        NPCInteractor npcInteractor =
+            GetComponent<NPCInteractor>();
 
         if (IsOwner)
         {
             // Point the scene camera at this player
             CameraController cam =
                 FindAnyObjectByType<CameraController>();
-
             if (cam != null)
                 cam.SetTarget(transform);
 
-            // Enable all owner-only components (they start disabled on prefab)
-            foreach (MonoBehaviour comp in ownerOnlyComponents)
-                if (comp != null) comp.enabled = true;
+            if (playerController != null)
+                playerController.enabled = true;
+
+            if (npcInteractor != null)
+                npcInteractor.enabled = true;
+
+            // Wire up UI systems that need player references
+            EquipmentUI equipmentUI =
+                FindAnyObjectByType<EquipmentUI>();
+            if (equipmentUI != null)
+                equipmentUI.SetEquipmentManager(
+                    GetComponent<EquipmentManager>()
+                );
+
+            HotbarUI hotbarUI =
+                FindAnyObjectByType<HotbarUI>();
+            if (hotbarUI != null)
+                hotbarUI.SetAbilityController(
+                    GetComponent<AbilityController>()
+                );
+
+            // Wire save manager to local player
+            GameSaveManager saveManager =
+                FindAnyObjectByType<GameSaveManager>();
+            if (saveManager != null)
+                saveManager.SetPlayer(gameObject);
         }
         else
         {
             // Disable input-driven components on other players
-            foreach (MonoBehaviour comp in ownerOnlyComponents)
-                if (comp != null) comp.enabled = false;
+            if (playerController != null)
+                playerController.enabled = false;
+
+            if (npcInteractor != null)
+                npcInteractor.enabled = false;
         }
     }
 }

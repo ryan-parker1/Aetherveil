@@ -25,23 +25,32 @@ public class GameSaveManager : MonoBehaviour
 
     private void Awake()
     {
-        if (player == null)
-            player = GameObject.FindWithTag("Player");
+        questLog = FindAnyObjectByType<QuestLog>();
+    }
 
-        experience         = player.GetComponent<Experience>();
-        health             = player.GetComponent<Health>();
-        combatStats        = player.GetComponent<CombatStats>();
-        playerGold         = player.GetComponent<PlayerGold>();
-        inventory          = player.GetComponent<Inventory>();
-        equipmentManager   = player.GetComponent<EquipmentManager>();
-        questLog           = FindAnyObjectByType<QuestLog>();
+    // Called by NetworkPlayerSetup when the local player spawns
+    public void SetPlayer(GameObject localPlayer)
+    {
+        player              = localPlayer;
+        experience          = player.GetComponent<Experience>();
+        health              = player.GetComponent<Health>();
+        combatStats         = player.GetComponent<CombatStats>();
+        playerGold          = player.GetComponent<PlayerGold>();
+        inventory           = player.GetComponent<Inventory>();
+        equipmentManager    = player.GetComponent<EquipmentManager>();
         characterController = player.GetComponent<CharacterController>();
+
+        // QuestLog may be on the player or elsewhere — find it now
+        if (questLog == null)
+            questLog = player.GetComponent<QuestLog>()
+                ?? FindAnyObjectByType<QuestLog>();
+
+        if (SaveSystem.SaveExists())
+            LoadGame();
     }
 
     private void Start()
     {
-        if (SaveSystem.SaveExists())
-            LoadGame();
     }
 
     private void Update()
@@ -52,7 +61,9 @@ public class GameSaveManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        SaveGame();
+        // Player may already be destroyed when stopping Play mode in editor
+        if (player != null)
+            SaveGame();
     }
 
     // ─────────────────────────────────────────
@@ -60,6 +71,12 @@ public class GameSaveManager : MonoBehaviour
     // ─────────────────────────────────────────
     public void SaveGame()
     {
+        if (player == null)
+        {
+            Debug.LogWarning("SaveGame: player is null, skipping.");
+            return;
+        }
+
         SaveData data = new SaveData();
 
         // Scene

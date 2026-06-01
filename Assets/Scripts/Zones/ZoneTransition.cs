@@ -1,3 +1,4 @@
+using FishNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,6 +20,14 @@ public class ZoneTransition : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+
+        // Multiplayer zone transitions require FishNet's SceneManager
+        // and will be implemented in a later phase. Block for now.
+        if (InstanceFinder.IsServerStarted || InstanceFinder.IsClientStarted)
+        {
+            Debug.Log("Zone transitions are disabled in multiplayer mode.");
+            return;
+        }
 
         // Save everything before leaving so inventory/quests persist
         GameSaveManager saveManager =

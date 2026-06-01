@@ -8,9 +8,23 @@ public class HotbarUI : MonoBehaviour
     [SerializeField]
     private GameObject abilitySlotPrefab;
 
+    // Called by NetworkPlayerSetup when the local player spawns
+    public void SetAbilityController(AbilityController controller)
+    {
+        abilityController = controller;
+        GenerateHotbar();
+    }
+
     private void Start()
     {
-        GenerateHotbar();
+        // AbilityController is on the Player spawned by FishNet
+        // — wait until it exists
+        if (abilityController == null)
+            abilityController =
+                FindAnyObjectByType<AbilityController>();
+
+        if (abilityController != null)
+            GenerateHotbar();
     }
 
     private void GenerateHotbar()

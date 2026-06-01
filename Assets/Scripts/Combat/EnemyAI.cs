@@ -33,13 +33,17 @@ public class EnemyAI : MonoBehaviour
 
     private void Start()
     {
+        TryFindPlayer();
+    }
+
+    private void TryFindPlayer()
+    {
         GameObject playerObject =
             GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject != null)
         {
             player = playerObject.transform;
-
             playerDamageable =
                 playerObject.GetComponent<Damageable>();
         }
@@ -47,11 +51,15 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
+        // Keep trying to find the player until FishNet spawns it
         if (player == null)
+        {
+            TryFindPlayer();
+            ApplyGravity();
             return;
+        }
 
         HandleCombat();
-
         ApplyGravity();
     }
 
