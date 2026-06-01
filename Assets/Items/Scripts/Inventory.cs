@@ -59,6 +59,13 @@ public class Inventory : MonoBehaviour
         return true;
     }
 
+    // Called by GameSaveManager on load
+    public void ClearAll()
+    {
+        slots.Clear();
+        OnInventoryChanged?.Invoke();
+    }
+
     public bool RemoveItem(
         ItemData item,
         int quantity = 1)
