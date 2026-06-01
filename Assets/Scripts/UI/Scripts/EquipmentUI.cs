@@ -35,7 +35,11 @@ public class EquipmentUI : MonoBehaviour
     private void Start()
     {
         equipmentWindow.SetActive(false);
-        equipmentManager.OnEquipmentChanged += Refresh;
+        // equipmentManager is null here in multiplayer — it is assigned at
+        // runtime by NetworkPlayerSetup.SetEquipmentManager() after FishNet
+        // spawns the local player. Subscribe only if already set (offline mode).
+        if (equipmentManager != null)
+            equipmentManager.OnEquipmentChanged += Refresh;
     }
 
     // Called by NetworkPlayerSetup when the local player spawns
