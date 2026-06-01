@@ -22,3 +22,4 @@ MonoBehaviour:
   equipmentSlot: 0
   bonusHealth: 0
   bonusDamage: 8
+  baseValue: 20

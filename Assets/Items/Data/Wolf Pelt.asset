@@ -18,3 +18,8 @@ MonoBehaviour:
   rarity: 0
   stackable: 1
   maxStackSize: 99
+  isEquipment: 0
+  equipmentSlot: 0
+  bonusHealth: 0
+  bonusDamage: 0
+  baseValue: 3
