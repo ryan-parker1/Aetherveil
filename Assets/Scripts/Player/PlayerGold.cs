@@ -16,6 +16,13 @@ public class PlayerGold : MonoBehaviour
         Debug.Log("Gold: " + gold);
     }
 
+    // Called by GameSaveManager on load — sets gold directly without firing event
+    public void SetGold(int amount)
+    {
+        gold = amount;
+        OnGoldChanged?.Invoke();
+    }
+
     // Returns false if the player can't afford it
     public bool SpendGold(int amount)
     {

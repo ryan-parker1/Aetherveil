@@ -18,6 +18,14 @@ public class Experience : MonoBehaviour
 
     public int RequiredXP => requiredXP;
 
+    // Called by GameSaveManager on load
+    public void LoadSaveData(int level, int xp, int required)
+    {
+        currentLevel = level;
+        currentXP    = xp;
+        requiredXP   = required;
+    }
+
     public void GainExperience(int amount)
     {
         currentXP += amount;

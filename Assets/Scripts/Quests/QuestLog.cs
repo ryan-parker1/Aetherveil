@@ -80,4 +80,24 @@ public class QuestLog : MonoBehaviour
 
         return null;
     }
+
+    // Called by GameSaveManager on load
+    public void ClearAll()
+    {
+        activeQuests.Clear();
+        OnQuestUpdated?.Invoke();
+    }
+
+    public void LoadSavedQuest(
+        QuestData data,
+        QuestStatus status,
+        int kills
+    )
+    {
+        Quest quest        = new Quest(data);
+        quest.Status       = status;
+        quest.CurrentKills = kills;
+        activeQuests.Add(quest);
+        OnQuestUpdated?.Invoke();
+    }
 }

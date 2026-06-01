@@ -46,6 +46,12 @@ public class Health : MonoBehaviour
         currentHealth = stats.TotalHealth;
     }
 
+    // Called by GameSaveManager on load
+    public void SetCurrentHealth(int amount)
+    {
+        currentHealth = Mathf.Clamp(amount, 0, stats.TotalHealth);
+    }
+
     public void IncreaseMaxHealth(int amount)
     {
         stats.MaxHealth += amount;
