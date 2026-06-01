@@ -4995,7 +4995,7 @@ MonoBehaviour:
   defaultDialogue: {fileID: 0}
   questOfferDialogue: {fileID: 11400000, guid: 767eed62bf284484296b78b9bffd74b0, type: 2}
   questActiveDialogue: {fileID: 0}
-  questCompleteDialogue: {fileID: 0}
+  questCompleteDialogue: {fileID: 11400000, guid: 74d0b706b685ce04a811466d25774d15, type: 2}
 --- !u!1 &1671676141
 GameObject:
   m_ObjectHideFlags: 0
