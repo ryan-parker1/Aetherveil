@@ -16,6 +16,11 @@ public class NetworkPlayerSetup : NetworkBehaviour
         NPCInteractor npcInteractor =
             GetComponent<NPCInteractor>();
 
+        // Give every player a visible name label (uses ClientId as a default)
+        PlayerNameLabel nameLabel = GetComponent<PlayerNameLabel>();
+        if (nameLabel != null)
+            nameLabel.SetPlayerName($"Player {OwnerId}");
+
         if (IsOwner)
         {
             // Point the scene camera at this player
