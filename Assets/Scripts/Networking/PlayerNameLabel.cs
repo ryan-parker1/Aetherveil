@@ -25,16 +25,16 @@ public class PlayerNameLabel : NetworkBehaviour
     {
         base.OnStartClient();
 
-        // Hide our OWN label — we don't need to see our own name above our head
-        if (IsOwner && nameText != null)
-        {
-            nameText.gameObject.SetActive(false);
-            return;
-        }
+        // Owner never sees their own name label — leave it inactive
+        if (IsOwner) return;
 
-        // Default label text until the server/owner syncs the real name
+        // Remote player: activate the label and set a default name.
+        // SetPlayerName() called by NetworkPlayerSetup will update this.
         if (nameText != null)
+        {
+            nameText.gameObject.SetActive(true);
             nameText.text = $"Player {OwnerId}";
+        }
     }
 
     private void Start()
@@ -72,10 +72,10 @@ public class PlayerNameLabel : NetworkBehaviour
     {
         if (nameText == null) return;
 
-        nameText.text = playerName;
+        // Owner never shows their own label
+        if (IsOwner) return;
 
-        // Still hide our own label even after name is set
-        if (IsOwner)
-            nameText.gameObject.SetActive(false);
+        nameText.text = playerName;
+        nameText.gameObject.SetActive(true);
     }
 }
