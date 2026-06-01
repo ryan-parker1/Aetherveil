@@ -1,11 +1,13 @@
+using FishNet;
+using FishNet.Object;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(CombatStats))]
-public class EnemyAI : MonoBehaviour
+public class EnemyAI : NetworkBehaviour
 {
     private Transform spawnPoint;
-    
+
     private bool returningToSpawn;
 
     private CharacterController controller;
@@ -24,17 +26,31 @@ public class EnemyAI : MonoBehaviour
 
     private float lastAttackTime;
 
+    // -------------------------------------------------------------------------
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-
-        stats = GetComponent<CombatStats>();
+        stats      = GetComponent<CombatStats>();
     }
 
     private void Start()
     {
         TryFindPlayer();
     }
+
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Returns true when this instance should run AI logic.
+    /// In multiplayer only the server/host drives enemies.
+    /// In offline mode (no FishNet) every instance drives itself.
+    /// </summary>
+    private bool ShouldRunAI =>
+        !InstanceFinder.IsClientStarted && !InstanceFinder.IsServerStarted   // offline
+        || IsServerInitialized;                                                // server/host
+
+    // -------------------------------------------------------------------------
 
     private void TryFindPlayer()
     {
@@ -43,15 +59,17 @@ public class EnemyAI : MonoBehaviour
 
         if (playerObject != null)
         {
-            player = playerObject.transform;
-            playerDamageable =
-                playerObject.GetComponent<Damageable>();
+            player           = playerObject.transform;
+            playerDamageable = playerObject.GetComponent<Damageable>();
         }
     }
 
     private void Update()
     {
-        // Keep trying to find the player until FishNet spawns it
+        // Non-server clients skip all AI — the server position syncs via
+        // NetworkTransform on the enemy prefab.
+        if (!ShouldRunAI) return;
+
         if (player == null)
         {
             TryFindPlayer();
@@ -63,6 +81,8 @@ public class EnemyAI : MonoBehaviour
         ApplyGravity();
     }
 
+    // -------------------------------------------------------------------------
+
     private void HandleCombat()
     {
         if (spawnPoint == null)
@@ -72,17 +92,11 @@ public class EnemyAI : MonoBehaviour
         }
 
         float distanceFromSpawn =
-            Vector3.Distance(
-                transform.position,
-                spawnPoint.position
-            );
-
-        // Debug.Log("Distance From Spawn: " + distanceFromSpawn);
+            Vector3.Distance(transform.position, spawnPoint.position);
 
         if (distanceFromSpawn > leashDistance)
         {
             Debug.Log("Enemy exceeded leash distance.");
-
             returningToSpawn = true;
         }
 
@@ -90,109 +104,62 @@ public class EnemyAI : MonoBehaviour
         {
             ReturnToSpawn();
 
-            float distanceToSpawn =
-                Vector3.Distance(
-                    transform.position,
-                    spawnPoint.position
-                );
-
-            if (distanceToSpawn < 0.5f)
+            if (Vector3.Distance(transform.position, spawnPoint.position) < 0.5f)
             {
                 returningToSpawn = false;
-
-                Health health =
-                    GetComponent<Health>();
-
-                if (health != null)
-                {
-                    health.RestoreFullHealth();
-                }
+                GetComponent<Health>()?.RestoreFullHealth();
             }
 
             return;
         }
 
         float distanceToPlayer =
-            Vector3.Distance(
-                transform.position,
-                player.position
-            );
+            Vector3.Distance(transform.position, player.position);
 
-        if (distanceToPlayer > stats.DetectionRange)
-        {
-            return;
-        }
+        if (distanceToPlayer > stats.DetectionRange) return;
 
         if (distanceToPlayer > stats.AttackRange)
-        {
             MoveTowardPlayer();
-        }
         else
-        {
             AttackPlayer();
-        }
     }
 
     private void MoveTowardPlayer()
     {
-        Vector3 direction =
-            (player.position - transform.position).normalized;
-
+        Vector3 direction = (player.position - transform.position).normalized;
         direction.y = 0f;
 
-        controller.Move(
-            direction *
-            stats.MoveSpeed *
-            Time.deltaTime
-        );
-
-        Quaternion targetRotation =
-            Quaternion.LookRotation(direction);
+        controller.Move(direction * stats.MoveSpeed * Time.deltaTime);
 
         transform.rotation = Quaternion.Lerp(
             transform.rotation,
-            targetRotation,
+            Quaternion.LookRotation(direction),
             10f * Time.deltaTime
         );
     }
 
     private void ReturnToSpawn()
     {
-
-        Vector3 direction =
-            (spawnPoint.position - transform.position).normalized;
-
+        Vector3 direction = (spawnPoint.position - transform.position).normalized;
         direction.y = 0f;
 
-        controller.Move(
-            direction *
-            stats.MoveSpeed *
-            Time.deltaTime
-        );
-
-        Quaternion targetRotation =
-            Quaternion.LookRotation(direction);
+        controller.Move(direction * stats.MoveSpeed * Time.deltaTime);
 
         transform.rotation = Quaternion.Lerp(
             transform.rotation,
-            targetRotation,
+            Quaternion.LookRotation(direction),
             10f * Time.deltaTime
         );
     }
 
     private void AttackPlayer()
     {
-        if (Time.time < lastAttackTime + stats.AttackCooldown)
-        {
-            return;
-        }
+        if (Time.time < lastAttackTime + stats.AttackCooldown) return;
 
-        if (playerDamageable != null)
-        {
-            playerDamageable.ReceiveDamage(stats.Damage);
+        // Server applies damage directly — it has authority over all health.
+        playerDamageable?.ReceiveDamage(stats.Damage);
 
-            Debug.Log(gameObject.name + " attacked player.");
-        }
+        Debug.Log($"{gameObject.name} attacked player for {stats.Damage} damage.");
 
         lastAttackTime = Time.time;
     }
@@ -200,18 +167,17 @@ public class EnemyAI : MonoBehaviour
     private void ApplyGravity()
     {
         if (controller.isGrounded && velocity.y < 0)
-        {
             velocity.y = -2f;
-        }
 
         velocity.y += gravity * Time.deltaTime;
-
         controller.Move(velocity * Time.deltaTime);
     }
+
+    // -------------------------------------------------------------------------
+
     public void SetSpawnPoint(Transform point)
     {
         spawnPoint = point;
-
-        Debug.Log(gameObject.name + " spawn point assigned.");
+        Debug.Log($"{gameObject.name} spawn point assigned.");
     }
 }

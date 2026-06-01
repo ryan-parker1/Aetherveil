@@ -27,7 +27,6 @@ public class VendorUI : MonoBehaviour
     private VendorData currentVendor;
     private PlayerGold playerGold;
     private Inventory playerInventory;
-    private bool isBuyTab = true;
 
     private void Start()
     {
@@ -53,7 +52,6 @@ public class VendorUI : MonoBehaviour
             playerGold.OnGoldChanged += RefreshGoldDisplay;
         }
 
-        isBuyTab = true;
         RefreshGoldDisplay();
         PopulateBuyList();
     }
@@ -68,13 +66,11 @@ public class VendorUI : MonoBehaviour
 
     private void ShowBuyTab()
     {
-        isBuyTab = true;
         PopulateBuyList();
     }
 
     private void ShowSellTab()
     {
-        isBuyTab = false;
         PopulateSellList();
     }
 

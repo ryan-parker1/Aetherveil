@@ -1,88 +1,109 @@
 using System;
+using FishNet;
+using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-public class Health : MonoBehaviour
+/// <summary>
+/// Tracks and synchronises hit points for any actor (player or enemy).
+/// Uses FishNet SyncVar<int> so all clients see the correct health value.
+/// Mutating methods (TakeDamage, RestoreFullHealth, etc.) must only be
+/// called on the server in multiplayer, or freely in offline mode.
+/// </summary>
+public class Health : NetworkBehaviour
 {
     private CombatStats stats;
 
-    private int currentHealth;
+    // SyncVar<T> — server sets Value, FishNet replicates to all clients.
+    private readonly SyncVar<int> _currentHealth = new SyncVar<int>();
 
-    public int CurrentHealth => currentHealth;
-
-    public bool IsDead => currentHealth <= 0;
+    public int  CurrentHealth => _currentHealth.Value;
+    public bool IsDead        => _currentHealth.Value <= 0;
 
     public event Action OnDeath;
+
+    // -------------------------------------------------------------------------
 
     private void Awake()
     {
         stats = GetComponent<CombatStats>();
-
-        currentHealth = stats.TotalHealth;
+        // Initialise locally so the value is valid before OnStartServer fires.
+        // In offline play (no FishNet) this is the only initialisation path.
+        _currentHealth.Value = stats.TotalHealth;
     }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        // Re-initialise on the server so the SyncVar broadcast starts correct.
+        _currentHealth.Value = stats.TotalHealth;
+    }
+
+    // -------------------------------------------------------------------------
+    // True when this instance is allowed to mutate health:
+    //   • Offline (FishNet not running at all), or
+    //   • This object is initialised on the server/host.
+    private bool IsAuthoritative =>
+        (!InstanceFinder.IsClientStarted && !InstanceFinder.IsServerStarted)
+        || IsServerInitialized;
+
+    // -------------------------------------------------------------------------
 
     public void TakeDamage(int amount)
     {
-        if (IsDead)
-            return;
+        if (!IsAuthoritative) return;
+        if (IsDead) return;
 
-        currentHealth -= amount;
+        _currentHealth.Value -= amount;
 
         Debug.Log(
-            gameObject.name +
-            " took " +
-            amount +
-            " damage. Remaining HP: " +
-            currentHealth
+            $"{gameObject.name} took {amount} damage. Remaining HP: {_currentHealth.Value}"
         );
 
-        if (currentHealth <= 0)
+        if (_currentHealth.Value <= 0)
         {
+            _currentHealth.Value = 0;
             Die();
         }
     }
 
     public void RestoreFullHealth()
     {
-        currentHealth = stats.TotalHealth;
+        if (!IsAuthoritative) return;
+        _currentHealth.Value = stats.TotalHealth;
     }
 
-    // Called by GameSaveManager on load
+    /// <summary>Called by GameSaveManager on load.</summary>
     public void SetCurrentHealth(int amount)
     {
-        currentHealth = Mathf.Clamp(amount, 0, stats.TotalHealth);
+        if (!IsAuthoritative) return;
+        _currentHealth.Value = Mathf.Clamp(amount, 0, stats.TotalHealth);
     }
 
     public void IncreaseMaxHealth(int amount)
     {
-        stats.MaxHealth += amount;
-
-        currentHealth = stats.TotalHealth;
+        if (!IsAuthoritative) return;
+        stats.MaxHealth      += amount;
+        _currentHealth.Value  = stats.TotalHealth;
     }
+
+    // -------------------------------------------------------------------------
 
     private void Die()
     {
-        currentHealth = 0;
-
-        Debug.Log(gameObject.name + " died.");
-
-        Debug.Log("Die() reached for: " + gameObject.name);
+        Debug.Log($"{gameObject.name} died.");
 
         if (CompareTag("Enemy"))
         {
-            QuestLog questLog =
-                FindAnyObjectByType<QuestLog>();
-
-            if (questLog != null)
-            {
-                questLog.RegisterKill(
-                    gameObject.name.Replace(
-                        "(Clone)",
-                        ""
-                    )
-                );
-            }
+            // In multiplayer this runs on the server; only the host player's
+            // QuestLog is found here. Phase 7E will broadcast the kill to the
+            // correct client via TargetRpc.
+            QuestLog questLog = FindAnyObjectByType<QuestLog>();
+            questLog?.RegisterKill(
+                gameObject.name.Replace("(Clone)", "").Trim()
+            );
         }
-        
+
         OnDeath?.Invoke();
     }
 }
