@@ -37,4 +37,8 @@ public class ItemData : ScriptableObject
     public int bonusHealth;
 
     public int bonusDamage;
+
+    [Header("Economy")]
+    [Tooltip("Base gold value. Vendors sell at this price, players sell back at half.")]
+    public int baseValue;
 }
