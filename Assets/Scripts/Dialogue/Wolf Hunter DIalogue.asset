@@ -12,15 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8078527019376d147aec514ffa82d96b, type: 3}
   m_Name: Wolf Hunter DIalogue
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
-  dialogueText: 'Greetings adventurer.
-
-    
-
-    The wolves near our village
-
-    have
-    become aggressive.
-
-    
-
-    Can you thin their numbers?'
+  npcName: Farmer Joe
+  pages:
+  - 'Ah, a traveller! Thank goodness you''re here. The wolves to the east have been
+    attacking our livestock. I need someone to deal with them. Will you help me? '
+  questOffer: {fileID: 11400000, guid: e9484bc1783edd44fa1439c2502ae4a6, type: 2}

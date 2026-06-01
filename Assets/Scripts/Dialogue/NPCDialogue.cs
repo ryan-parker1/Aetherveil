@@ -28,7 +28,7 @@ public class NPCDialogue : MonoBehaviour
 
     public void OpenDialogue()
     {
-        DialogueUI ui = FindAnyObjectByType<DialogueUI>();
+        DialogueUI ui = FindAnyObjectByType<DialogueUI>(FindObjectsInactive.Include);
         if (ui == null)
         {
             Debug.LogWarning("NPCDialogue: No DialogueUI found in scene.");
@@ -111,7 +111,7 @@ public class NPCDialogue : MonoBehaviour
 
     private void OnTurnInClosed()
     {
-        DialogueUI ui = FindAnyObjectByType<DialogueUI>();
+        DialogueUI ui = FindAnyObjectByType<DialogueUI>(FindObjectsInactive.Include);
         if (ui != null) ui.OnDialogueClosed -= OnTurnInClosed;
 
         questGiver?.TurnInQuest();
@@ -119,7 +119,7 @@ public class NPCDialogue : MonoBehaviour
 
     private void UnsubscribeQuestEvents()
     {
-        DialogueUI ui = FindAnyObjectByType<DialogueUI>();
+        DialogueUI ui = FindAnyObjectByType<DialogueUI>(FindObjectsInactive.Include);
         if (ui == null) return;
         ui.OnQuestAccepted -= OnQuestAccepted;
         ui.OnQuestDeclined -= OnQuestDeclined;

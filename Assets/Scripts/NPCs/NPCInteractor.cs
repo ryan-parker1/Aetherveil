@@ -10,7 +10,7 @@ public class NPCInteractor : MonoBehaviour
 
     private void Start()
     {
-        dialogueUI = FindAnyObjectByType<DialogueUI>();
+        dialogueUI = FindAnyObjectByType<DialogueUI>(FindObjectsInactive.Include);
     }
 
     private void Update()
