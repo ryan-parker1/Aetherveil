@@ -25,11 +25,8 @@ public class PlayerNameLabel : NetworkBehaviour
     {
         base.OnStartClient();
 
-        // Owner never sees their own name label — leave it inactive
-        if (IsOwner) return;
-
-        // Remote player: activate the label and set a default name.
-        // SetPlayerName() called by NetworkPlayerSetup will update this.
+        // Activate the label for all players including the local owner.
+        // SetPlayerName() called by NetworkPlayerSetup will set the final text.
         if (nameText != null)
         {
             nameText.gameObject.SetActive(true);
@@ -71,9 +68,6 @@ public class PlayerNameLabel : NetworkBehaviour
     public void SetPlayerName(string playerName)
     {
         if (nameText == null) return;
-
-        // Owner never shows their own label
-        if (IsOwner) return;
 
         nameText.text = playerName;
         nameText.gameObject.SetActive(true);
