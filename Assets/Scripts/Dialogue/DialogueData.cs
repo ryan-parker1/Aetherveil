@@ -6,6 +6,14 @@ using UnityEngine;
 )]
 public class DialogueData : ScriptableObject
 {
+    [Header("NPC")]
+    public string npcName;
+
+    [Header("Pages")]
     [TextArea(3, 10)]
-    public string dialogueText;
+    public string[] pages;
+
+    [Header("Quest (optional)")]
+    [Tooltip("If set, Accept/Decline buttons appear on the last page.")]
+    public QuestData questOffer;
 }

@@ -1,97 +1,64 @@
 using UnityEngine;
 
+// QuestGiver no longer drives the dialogue flow itself.
+// NPCDialogue picks the right dialogue state and calls
+// AcceptQuest() / TurnInQuest() based on player input.
 public class QuestGiver : MonoBehaviour
 {
-    [SerializeField]
-    private QuestData quest;
+    [SerializeField] private QuestData quest;
 
     private bool rewardGiven;
 
-    public void Interact()
+    // Read by NPCDialogue to know which quest this NPC manages
+    public QuestData QuestData => quest;
+
+    public void AcceptQuest()
     {
-        QuestLog questLog =
-            FindAnyObjectByType<QuestLog>();
+        QuestLog questLog = FindAnyObjectByType<QuestLog>();
+        if (questLog == null) return;
 
-        if (questLog == null)
-            return;
+        if (questLog.GetQuest(quest) != null) return; // already accepted
 
-        Quest existingQuest =
-            questLog.GetQuest(quest);
+        questLog.AcceptQuest(quest);
+        Debug.Log("Quest accepted: " + quest.questName);
+    }
 
-        if (existingQuest == null)
-        {
-            questLog.AcceptQuest(quest);
+    public void TurnInQuest()
+    {
+        if (rewardGiven) return;
 
-            Debug.Log(
-                "Quest given: " +
-                quest.questName
-            );
+        QuestLog questLog = FindAnyObjectByType<QuestLog>();
+        if (questLog == null) return;
 
-            return;
-        }
+        Quest existingQuest = questLog.GetQuest(quest);
+        if (existingQuest == null) return;
 
-        if (
-            existingQuest.Status ==
-            QuestStatus.Complete
-            &&
-            !rewardGiven
-        )
-        {
-            GiveRewards();
+        if (existingQuest.Status != QuestStatus.Complete) return;
 
-            rewardGiven = true;
-
-            existingQuest.Status =
-                QuestStatus.TurnedIn;
-        }
+        GiveRewards();
+        rewardGiven = true;
+        existingQuest.Status = QuestStatus.TurnedIn;
     }
 
     private void GiveRewards()
     {
-        Debug.Log(
-            "Quest Turned In!"
-        );
+        Debug.Log("Quest Turned In: " + quest.questName);
 
-        Experience experience =
-            FindAnyObjectByType<Experience>();
-
+        Experience experience = FindAnyObjectByType<Experience>();
         if (experience != null)
-        {
-            experience.GainExperience(
-                quest.rewardXP
-            );
-        }
+            experience.GainExperience(quest.rewardXP);
 
-        PlayerGold gold =
-            FindAnyObjectByType<PlayerGold>();
-
+        PlayerGold gold = FindAnyObjectByType<PlayerGold>();
         if (gold != null)
+            gold.AddGold(quest.rewardGold);
+
+        Inventory inventory = FindAnyObjectByType<Inventory>();
+        if (inventory != null && quest.rewardItem != null)
         {
-            gold.AddGold(
-                quest.rewardGold
-            );
+            inventory.AddItem(quest.rewardItem);
+            Debug.Log("Item rewarded: " + quest.rewardItem.itemName);
         }
 
-        Inventory inventory =
-            FindAnyObjectByType<Inventory>();
-
-        if (
-            inventory != null &&
-            quest.rewardItem != null
-        )
-        {
-            inventory.AddItem(
-                quest.rewardItem
-            );
-
-            Debug.Log(
-                "Received: " +
-                quest.rewardItem.itemName
-            );
-        }
-
-        Debug.Log(
-            "Rewards Granted"
-        );
+        Debug.Log("Rewards granted.");
     }
 }
