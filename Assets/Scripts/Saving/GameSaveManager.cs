@@ -40,6 +40,11 @@ public class GameSaveManager : MonoBehaviour
         equipmentManager    = player.GetComponent<EquipmentManager>();
         characterController = player.GetComponent<CharacterController>();
 
+        // QuestLog may be on the player or elsewhere — find it now
+        if (questLog == null)
+            questLog = player.GetComponent<QuestLog>()
+                ?? FindAnyObjectByType<QuestLog>();
+
         if (SaveSystem.SaveExists())
             LoadGame();
     }
@@ -56,7 +61,9 @@ public class GameSaveManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        SaveGame();
+        // Player may already be destroyed when stopping Play mode in editor
+        if (player != null)
+            SaveGame();
     }
 
     // ─────────────────────────────────────────
@@ -64,6 +71,12 @@ public class GameSaveManager : MonoBehaviour
     // ─────────────────────────────────────────
     public void SaveGame()
     {
+        if (player == null)
+        {
+            Debug.LogWarning("SaveGame: player is null, skipping.");
+            return;
+        }
+
         SaveData data = new SaveData();
 
         // Scene
