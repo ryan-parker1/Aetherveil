@@ -1,7 +1,8 @@
+using FishNet.Object;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 6f;
@@ -10,17 +11,20 @@ public class PlayerController : MonoBehaviour
 
     private CharacterController controller;
     private Vector3 velocity;
-
     private Camera mainCamera;
 
     private void Awake()
     {
-        controller = GetComponent<CharacterController>();
-        mainCamera = Camera.main;
+        controller  = GetComponent<CharacterController>();
+        mainCamera  = Camera.main;
     }
 
     private void Update()
     {
+        // Only the owner processes input — other clients are driven
+        // by NetworkTransform sync
+        if (!IsOwner) return;
+
         HandleMovement();
         ApplyGravity();
     }
@@ -28,26 +32,28 @@ public class PlayerController : MonoBehaviour
     private void HandleMovement()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
+        float vertical   = Input.GetAxisRaw("Vertical");
 
         Vector3 input = new Vector3(horizontal, 0f, vertical).normalized;
 
         if (input.magnitude >= 0.1f)
         {
             Vector3 cameraForward = mainCamera.transform.forward;
-            Vector3 cameraRight = mainCamera.transform.right;
+            Vector3 cameraRight   = mainCamera.transform.right;
 
             cameraForward.y = 0f;
-            cameraRight.y = 0f;
+            cameraRight.y   = 0f;
 
             cameraForward.Normalize();
             cameraRight.Normalize();
 
-            Vector3 moveDirection = cameraForward * input.z + cameraRight * input.x;
+            Vector3 moveDirection =
+                cameraForward * input.z + cameraRight * input.x;
 
             controller.Move(moveDirection * moveSpeed * Time.deltaTime);
 
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            Quaternion targetRotation =
+                Quaternion.LookRotation(moveDirection);
 
             transform.rotation = Quaternion.Lerp(
                 transform.rotation,
@@ -60,9 +66,7 @@ public class PlayerController : MonoBehaviour
     private void ApplyGravity()
     {
         if (controller.isGrounded && velocity.y < 0f)
-        {
             velocity.y = -2f;
-        }
 
         velocity.y += gravity * Time.deltaTime;
 

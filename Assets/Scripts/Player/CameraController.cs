@@ -21,6 +21,12 @@ public class CameraController : MonoBehaviour
         cam = GetComponent<Camera>();
     }
 
+    // Called by NetworkPlayerSetup to point the camera at the local player
+    public void SetTarget(Transform newTarget)
+    {
+        target = newTarget;
+    }
+
     private void LateUpdate()
     {
         if (target == null)
