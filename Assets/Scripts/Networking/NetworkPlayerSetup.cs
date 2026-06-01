@@ -44,6 +44,12 @@ public class NetworkPlayerSetup : NetworkBehaviour
                 hotbarUI.SetAbilityController(
                     GetComponent<AbilityController>()
                 );
+
+            // Wire save manager to local player
+            GameSaveManager saveManager =
+                FindAnyObjectByType<GameSaveManager>();
+            if (saveManager != null)
+                saveManager.SetPlayer(gameObject);
         }
         else
         {

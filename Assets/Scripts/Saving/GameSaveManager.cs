@@ -25,23 +25,27 @@ public class GameSaveManager : MonoBehaviour
 
     private void Awake()
     {
-        if (player == null)
-            player = GameObject.FindWithTag("Player");
+        questLog = FindAnyObjectByType<QuestLog>();
+    }
 
-        experience         = player.GetComponent<Experience>();
-        health             = player.GetComponent<Health>();
-        combatStats        = player.GetComponent<CombatStats>();
-        playerGold         = player.GetComponent<PlayerGold>();
-        inventory          = player.GetComponent<Inventory>();
-        equipmentManager   = player.GetComponent<EquipmentManager>();
-        questLog           = FindAnyObjectByType<QuestLog>();
+    // Called by NetworkPlayerSetup when the local player spawns
+    public void SetPlayer(GameObject localPlayer)
+    {
+        player              = localPlayer;
+        experience          = player.GetComponent<Experience>();
+        health              = player.GetComponent<Health>();
+        combatStats         = player.GetComponent<CombatStats>();
+        playerGold          = player.GetComponent<PlayerGold>();
+        inventory           = player.GetComponent<Inventory>();
+        equipmentManager    = player.GetComponent<EquipmentManager>();
         characterController = player.GetComponent<CharacterController>();
+
+        if (SaveSystem.SaveExists())
+            LoadGame();
     }
 
     private void Start()
     {
-        if (SaveSystem.SaveExists())
-            LoadGame();
     }
 
     private void Update()
