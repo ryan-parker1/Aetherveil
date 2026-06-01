@@ -35,20 +35,32 @@ public class EquipmentUI : MonoBehaviour
     private void Start()
     {
         equipmentWindow.SetActive(false);
-
         equipmentManager.OnEquipmentChanged += Refresh;
+    }
 
-        // Cache player component references
+    // Called by NetworkPlayerSetup when the local player spawns
+    public void SetEquipmentManager(EquipmentManager manager)
+    {
+        if (equipmentManager != null)
+            equipmentManager.OnEquipmentChanged -= Refresh;
+
+        equipmentManager = manager;
+        equipmentManager.OnEquipmentChanged += Refresh;
+    }
+
+    // Finds player components lazily — safe to call multiple times
+    private void CachePlayerComponents()
+    {
+        if (experience != null) return; // already cached
+
         GameObject player = GameObject.FindWithTag("Player");
-        if (player != null)
-        {
-            experience  = player.GetComponent<Experience>();
-            health      = player.GetComponent<Health>();
-            combatStats = player.GetComponent<CombatStats>();
-            playerGold  = player.GetComponent<PlayerGold>();
-        }
+        if (player == null) return;
 
-        // Subscribe to gold changes so the display updates in real time
+        experience  = player.GetComponent<Experience>();
+        health      = player.GetComponent<Health>();
+        combatStats = player.GetComponent<CombatStats>();
+        playerGold  = player.GetComponent<PlayerGold>();
+
         if (playerGold != null)
             playerGold.OnGoldChanged += RefreshStats;
     }
@@ -72,7 +84,10 @@ public class EquipmentUI : MonoBehaviour
         equipmentWindow.SetActive(!equipmentWindow.activeSelf);
 
         if (equipmentWindow.activeSelf)
+        {
+            CachePlayerComponents();
             Refresh();
+        }
     }
 
     // Refreshes both equipment slots and stats
@@ -94,6 +109,8 @@ public class EquipmentUI : MonoBehaviour
 
     private void RefreshStats()
     {
+        CachePlayerComponents();
+
         if (levelText != null && experience != null)
             levelText.text = "Level: " + experience.CurrentLevel;
 

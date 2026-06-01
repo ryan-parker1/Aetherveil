@@ -17,6 +17,15 @@ public class TargetUI : MonoBehaviour
 
     private void UpdateTargetUI()
     {
+        // TargetingController lives on the Player which is spawned by FishNet
+        // — find it once it exists
+        if (targetingController == null)
+        {
+            targetingController =
+                FindAnyObjectByType<TargetingController>();
+            return;
+        }
+
         if (targetingController.CurrentTarget == null)
         {
             targetNameText.text = "No Target";
