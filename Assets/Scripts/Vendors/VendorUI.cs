@@ -27,7 +27,6 @@ public class VendorUI : MonoBehaviour
     private VendorData currentVendor;
     private PlayerGold playerGold;
     private Inventory playerInventory;
-    private bool isBuyTab = true;
 
     private void Start()
     {
