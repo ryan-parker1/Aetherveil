@@ -98,7 +98,10 @@ public class GameSaveManager : MonoBehaviour
         // Combat stats — save base values (before equipment bonuses)
         data.maxHealth     = combatStats.MaxHealth;
         data.damage        = combatStats.Damage;
-        data.currentHealth = health.CurrentHealth;
+        // Never save at 0 HP — player should load alive next session.
+        data.currentHealth = health.IsDead
+            ? combatStats.TotalHealth
+            : Mathf.Max(1, health.CurrentHealth);
 
         // Inventory
         foreach (InventorySlot slot in inventory.Slots)
