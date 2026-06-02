@@ -15,6 +15,10 @@ using UnityEngine;
 /// </summary>
 public class LootPickup : NetworkBehaviour
 {
+    [Header("Data")]
+    [Tooltip("Drag Assets/Scripts/Data/GameRegistry.asset here.")]
+    [SerializeField] private GameRegistry registry;
+
     [Header("Visuals")]
     [SerializeField] private Renderer pickupRenderer;
     [SerializeField] private Color    pickupColour = Color.yellow;
@@ -84,10 +88,9 @@ public class LootPickup : NetworkBehaviour
     [TargetRpc]
     private void TargetGrantLoot(NetworkConnection conn, string itemName, int quantity)
     {
-        GameRegistry registry = FindAnyObjectByType<GameRegistry>();
         if (registry == null)
         {
-            Debug.LogWarning("LootPickup: GameRegistry not found.");
+            Debug.LogWarning("LootPickup: GameRegistry not assigned on prefab.");
             return;
         }
 
@@ -109,7 +112,6 @@ public class LootPickup : NetworkBehaviour
 
     private void GrantOffline(GameObject player)
     {
-        GameRegistry registry = FindAnyObjectByType<GameRegistry>();
         if (registry == null) return;
 
         ItemData item = registry.GetItem(_itemName);
