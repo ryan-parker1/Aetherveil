@@ -47,6 +47,8 @@ public class LootPickup : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log($"LootPickup trigger entered by: {other.gameObject.name} (tag: {other.tag})");
+
         if (!other.CompareTag("Player")) return;
 
         // In offline mode (no FishNet) add the item directly.
@@ -61,6 +63,7 @@ public class LootPickup : NetworkBehaviour
         NetworkObject playerNet = other.GetComponent<NetworkObject>();
         if (playerNet == null || !playerNet.IsOwner) return;
 
+        Debug.Log($"LootPickup: sending ServerClaim for {_itemName}");
         ServerClaim(playerNet);
     }
 
