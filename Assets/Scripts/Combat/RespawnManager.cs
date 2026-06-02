@@ -36,15 +36,20 @@ public class RespawnManager : MonoBehaviour
 
         yield return new WaitForSeconds(respawnDelay);
 
-        // Find the respawn point by tag at runtime — avoids the
-        // prefab-cannot-reference-scene-object limitation.
-        GameObject respawnObj = GameObject.FindGameObjectWithTag("RespawnPoint");
-        Vector3 respawnPos = respawnObj != null
-            ? respawnObj.transform.position
-            : Vector3.zero;
-
-        if (respawnObj == null)
-            Debug.LogWarning("RespawnManager: no GameObject tagged 'RespawnPoint' found. Respawning at world origin.");
+        // Try to find a respawn point by tag. FindGameObjectWithTag throws
+        // a UnityException (not null) if the tag doesn't exist in the project,
+        // so we catch it and fall back to the player's current position.
+        Vector3 respawnPos = transform.position; // default: respawn in place
+        try
+        {
+            GameObject respawnObj = GameObject.FindGameObjectWithTag("RespawnPoint");
+            if (respawnObj != null)
+                respawnPos = respawnObj.transform.position;
+        }
+        catch
+        {
+            Debug.LogWarning("RespawnManager: 'RespawnPoint' tag not defined. Respawning in place.");
+        }
 
         controller.enabled    = false;
         transform.position    = respawnPos;
