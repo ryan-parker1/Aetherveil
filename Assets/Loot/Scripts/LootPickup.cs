@@ -28,6 +28,10 @@ public class LootPickup : NetworkBehaviour
 
     private void Awake()
     {
+        // Auto-find renderer on this GameObject if not assigned in Inspector.
+        if (pickupRenderer == null)
+            pickupRenderer = GetComponent<Renderer>();
+
         if (pickupRenderer != null)
             pickupRenderer.material.color = pickupColour;
     }

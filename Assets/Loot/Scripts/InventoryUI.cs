@@ -2,18 +2,20 @@ using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
 {
-    [SerializeField] private Inventory inventory;
-
     [SerializeField] private GameObject slotPrefab;
 
     [SerializeField] private Transform gridParent;
 
+    // Inventory lives on the Player prefab spawned by FishNet.
+    // Find it lazily the first time it is needed.
+    private Inventory inventory;
+
     private void OnEnable()
     {
+        TryCacheInventory();
+
         if (inventory != null)
-        {
             inventory.OnInventoryChanged += Refresh;
-        }
 
         Refresh();
     }
@@ -21,35 +23,36 @@ public class InventoryUI : MonoBehaviour
     private void OnDisable()
     {
         if (inventory != null)
-        {
             inventory.OnInventoryChanged -= Refresh;
-        }
+    }
+
+    private void TryCacheInventory()
+    {
+        if (inventory != null) return;
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+            inventory = player.GetComponent<Inventory>();
     }
 
     public void Refresh()
     {
-        Debug.Log("Refreshing Inventory UI");
+        // Try to find inventory again in case it wasn't ready during OnEnable.
+        TryCacheInventory();
 
         if (inventory == null)
         {
-            Debug.LogError("Inventory reference is missing!");
+            Debug.LogWarning("InventoryUI: player not spawned yet — inventory unavailable.");
             return;
         }
 
-        Debug.Log("Inventory Slots: " + inventory.Slots.Count);
-
         foreach (Transform child in gridParent)
-        {
             Destroy(child.gameObject);
-        }
 
         foreach (InventorySlot slot in inventory.Slots)
         {
-            GameObject obj =
-                Instantiate(slotPrefab, gridParent);
-
-            obj.GetComponent<InventorySlotUI>()
-                .Setup(slot);
+            GameObject obj = Instantiate(slotPrefab, gridParent);
+            obj.GetComponent<InventorySlotUI>()?.Setup(slot);
         }
     }
 }
