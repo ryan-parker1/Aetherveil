@@ -1,6 +1,6 @@
 # Aetherveil — Architecture Notes
 
-Last updated: Phase 7A
+Last updated: Phase 7D
 
 ---
 
@@ -130,9 +130,32 @@ All UI that references Player components must find them **lazily** — the Playe
 |---|---|
 | Multiplayer zone transitions | Blocked — needs FishNet `NetworkSceneManager` |
 | Pause/Main menu | Deferred to Phase 9 |
+| Quest kill credit in multiplayer | Goes to host player only — fixed in Phase 7E via TargetRpc |
+| XP rewards in multiplayer | Same as quest kill — Phase 7E |
 | `EquipmentWindowController` duplicate toggle | Harmless, can remove the component |
-| `VendorUI.isBuyTab` unused field warning | Minor, can suppress or remove |
 | FishNet assets not committed to git | Large package, consider `.gitignore` |
+| Unity Editor inspector errors on Play | Stale prefab selection in Inspector — harmless, click elsewhere before Play |
+
+## Loot System (Phase 7D)
+
+- `LootPickup` prefab: `NetworkObject` + `LootPickup` script + trigger `SphereCollider` (radius 1.5) + `GameRegistry` reference
+- Flow: server spawns pickup → client `OnTriggerEnter` → `ServerRpc` claim → `TargetRpc` grants item by name → `Inventory.AddItem`
+- Item name lookup: `GameRegistry.GetItem(name)` — all lootable items must be in GameRegistry
+- `LootPickup.registry` must be assigned on the prefab (ScriptableObjects need direct reference, not `FindAnyObjectByType`)
+
+## Health System (Phase 7C/7D)
+
+- `Health` is `NetworkBehaviour` with `SyncVar<int> _syncedHealth`
+- Local `int _health` is the authoritative value on server/offline; SyncVar replicates it to clients
+- `CurrentHealth` returns `_syncedHealth.Value` when spawned (networked), `_health` when offline
+- `SetCurrentHealth` clamps minimum to 1 — prevents loading dead from save
+- `GameSaveManager.SaveGame` saves `TotalHealth` if player is dead at quit time
+
+## Respawn System
+
+- `RespawnManager` finds spawn point via `GameObject.FindGameObjectWithTag("RespawnPoint")` at runtime
+- Prefabs cannot hold Inspector references to scene objects — tag-based lookup is required
+- `FindGameObjectWithTag` throws `UnityException` (not null) for undefined tags — wrapped in try/catch, falls back to current position
 
 ---
 
@@ -151,10 +174,10 @@ Phase 6D - Enemy Respawning     ✅
 Phase 6E - Save System          ✅
 Phase 6F - Multiple Zones       ✅
 Phase 7A - Networking Foundation ✅
-Phase 7B - Multiplayer Movement  ← Next
-Phase 7C - Multiplayer Combat
-Phase 7D - Multiplayer Loot
-Phase 7E - Multiplayer Quests
+Phase 7B - Multiplayer Movement  ✅
+Phase 7C - Multiplayer Combat    ✅
+Phase 7D - Multiplayer Loot      ✅
+Phase 7E - Multiplayer Quests    ← Next
 Phase 8  - Content Production
 Phase 9  - Polish & Launch
 ```
