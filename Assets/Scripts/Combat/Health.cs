@@ -8,10 +8,10 @@ using UnityEngine;
 /// Tracks and synchronises hit points for any actor (player or enemy).
 ///
 /// Network mode  : SyncVar<int> replicates currentHealth from server to all clients.
-///                 Mutation methods are safe to call from server code (EnemyAI,
-///                 CombatController ServerRpc) without additional guards — those
-///                 callers are already gated to run server-only.
 /// Offline mode  : Plain int is used directly; SyncVar is never touched.
+///
+/// When an enemy dies the server broadcasts RpcRegisterKill to all clients so
+/// every player's QuestLog receives the kill — not just the host's.
 /// </summary>
 public class Health : NetworkBehaviour
 {
@@ -40,7 +40,6 @@ public class Health : NetworkBehaviour
     public override void OnStartServer()
     {
         base.OnStartServer();
-        // Authoritative server initialises both values.
         _health = stats.TotalHealth;
         _syncedHealth.Value = _health;
     }
@@ -49,9 +48,6 @@ public class Health : NetworkBehaviour
 
     public void TakeDamage(int amount)
     {
-        // Guard: in multiplayer only server code should reach here; in offline
-        // the plain int path is always valid. No NetworkBehaviour guard needed
-        // because EnemyAI and CombatController already run server-only.
         if (IsDead) return;
 
         _health -= amount;
@@ -100,15 +96,38 @@ public class Health : NetworkBehaviour
 
         if (CompareTag("Enemy"))
         {
-            // In multiplayer this runs on the server; only the host player's
-            // QuestLog is reachable here. Phase 7E will broadcast to the
-            // correct client via TargetRpc.
-            QuestLog questLog = FindAnyObjectByType<QuestLog>();
-            questLog?.RegisterKill(
-                gameObject.name.Replace("(Clone)", "").Trim()
-            );
+            // Broadcast to all clients so every player's QuestLog gets the kill.
+            // Each client filters to its own (IsOwner) player's QuestLog.
+            string enemyName = gameObject.name.Replace("(Clone)", "").Trim();
+            RpcRegisterKill(enemyName);
         }
 
         OnDeath?.Invoke();
+    }
+
+    /// <summary>
+    /// Runs on all clients (including host) when an enemy dies.
+    /// Each client registers the kill only in the OWNER player's QuestLog,
+    /// preventing non-owner player prefabs from also claiming the kill.
+    /// </summary>
+    [ObserversRpc]
+    private void RpcRegisterKill(string enemyName)
+    {
+        // Find all QuestLogs in scene — in multiplayer there will be one per player.
+        QuestLog[] logs = FindObjectsByType<QuestLog>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None
+        );
+
+        foreach (QuestLog log in logs)
+        {
+            // Each client only updates the QuestLog belonging to its owned player.
+            NetworkObject netObj = log.GetComponent<NetworkObject>();
+            bool isLocalPlayer   = netObj == null || netObj.IsOwner;
+            if (!isLocalPlayer) continue;
+
+            log.RegisterKill(enemyName);
+            return; // one owner player per client
+        }
     }
 }
