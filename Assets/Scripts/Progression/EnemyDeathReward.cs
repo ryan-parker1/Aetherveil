@@ -39,10 +39,7 @@ public class EnemyDeathReward : NetworkBehaviour
     [ObserversRpc]
     private void RpcGiveExperience(int xpAmount)
     {
-        Experience[] experiences = FindObjectsByType<Experience>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None
-        );
+        Experience[] experiences = FindObjectsByType<Experience>(FindObjectsInactive.Include);
 
         foreach (Experience exp in experiences)
         {

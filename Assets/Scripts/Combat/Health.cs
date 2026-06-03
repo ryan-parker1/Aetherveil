@@ -114,10 +114,7 @@ public class Health : NetworkBehaviour
     private void RpcRegisterKill(string enemyName)
     {
         // Find all QuestLogs in scene — in multiplayer there will be one per player.
-        QuestLog[] logs = FindObjectsByType<QuestLog>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None
-        );
+        QuestLog[] logs = FindObjectsByType<QuestLog>(FindObjectsInactive.Include);
 
         foreach (QuestLog log in logs)
         {
