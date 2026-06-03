@@ -1,6 +1,6 @@
 # Aetherveil — Architecture Notes
 
-Last updated: Phase 7D
+Last updated: Phase 7E
 
 ---
 
@@ -130,11 +130,21 @@ All UI that references Player components must find them **lazily** — the Playe
 |---|---|
 | Multiplayer zone transitions | Blocked — needs FishNet `NetworkSceneManager` |
 | Pause/Main menu | Deferred to Phase 9 |
-| Quest kill credit in multiplayer | Goes to host player only — fixed in Phase 7E via TargetRpc |
-| XP rewards in multiplayer | Same as quest kill — Phase 7E |
+| Quest kill credit in multiplayer | Fixed in Phase 7E via ObserversRpc + owner filter |
+| XP rewards in multiplayer | Fixed in Phase 7E via ObserversRpc + owner filter |
 | `EquipmentWindowController` duplicate toggle | Harmless, can remove the component |
 | FishNet assets not committed to git | Large package, consider `.gitignore` |
 | Unity Editor inspector errors on Play | Stale prefab selection in Inspector — harmless, click elsewhere before Play |
+
+## Multiplayer Quests & XP (Phase 7E)
+
+- **Kill credit:** `Health.Die()` (server) calls `[ObserversRpc] RpcRegisterKill(enemyName)` → all clients run it → each filters to its owned `QuestLog` via `NetworkObject.IsOwner`
+- **XP rewards:** `EnemyDeathReward.GiveExperience()` (server) calls `[ObserversRpc] RpcGiveExperience(xpAmount)` → all clients run it → each filters to its owned `Experience` component via `NetworkObject.IsOwner`
+- **Shared kill credit:** All players get credit for every kill (intentional MMO-lite design)
+- **QuestJournalUI:** Lazy-finds `QuestLog` via `GameObject.FindGameObjectWithTag("Player")` because FishNet spawns the player after `Start()` — subscribes `OnQuestUpdated` event once found
+- **Unity 6 API:** `FindObjectsByType<T>(FindObjectsInactive.Include)` — no `FindObjectsSortMode` parameter (the overload with sort mode is deprecated in Unity 6)
+
+---
 
 ## Loot System (Phase 7D)
 
@@ -177,7 +187,7 @@ Phase 7A - Networking Foundation ✅
 Phase 7B - Multiplayer Movement  ✅
 Phase 7C - Multiplayer Combat    ✅
 Phase 7D - Multiplayer Loot      ✅
-Phase 7E - Multiplayer Quests    ← Next
-Phase 8  - Content Production
+Phase 7E - Multiplayer Quests    ✅
+Phase 8  - Content Production    ← Next
 Phase 9  - Polish & Launch
 ```
